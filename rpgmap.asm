@@ -75,13 +75,16 @@ start:
    ldy #<palette_fn
    jsr loadvram
 
+   PRINT_STRING "loading banked RAM"
+   jsr loadbank
+
    ; Disable layers and sprites
    lda VERA_dc_video
    and #$8F
    sta VERA_dc_video
 
    ; Setup tiles on layer 0
-   lda #$B2                      ; 256x128 map of 4bpp tiles
+   lda #$52                      ; 64x64 map of 4bpp tiles
    sta VERA_L0_config
    lda #((VRAM_TILEMAP0 >> 9) & $FF)
    sta VERA_L0_mapbase
@@ -98,7 +101,7 @@ start:
    jsr loadvram
 
    ; Setup tiles on layer 1
-   lda #$12                      ; 64x32 map of 4bpp tiles
+   lda #$A2                      ; 128x128 map of 4bpp tiles
    sta VERA_L1_config
    lda #((VRAM_TILEMAP1 >> 9) & $FF)
    sta VERA_L1_mapbase
@@ -120,9 +123,9 @@ start:
    sta VERA_dc_hscale
    sta VERA_dc_vscale
 
-   ; enable all layers
+   ; enable all layers and sprites
    lda VERA_dc_video
-   ora #$30
+   ora #$70
    sta VERA_dc_video
 
    ; setup interrupts

@@ -11,6 +11,7 @@ init_game:
    jsr MOUSE_CONFIG  ; disable mouse cursor
    jsr init_player
    jsr init_music
+   jsr start_music
    rts
 
 game_tick:        ; called after every VSYNC detected (60 Hz)

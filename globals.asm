@@ -9,11 +9,11 @@ GLOBALS_INC = 1
 MUSIC_PTR      = $28
 
 ; VRAM map
-VRAM_TILEMAP0  = $00000 ; 256x128 tilemap (world/town/dungeon map)
-VRAM_TILEMAP1  = $10000 ; 64x32 tilemap (GUI/HUD)
-VRAM_TILES0    = $11000 ; 128 4bpp 16x16 tiles (may also be used as sprite frames)
-VRAM_TILES1    = $15000 ; 256 4bpp 8x8 tiles
-VRAM_SPRITES   = $19000 ; 211 4bpp 16x16 frames
+VRAM_TILEMAP0  = $00000 ; 64x64 tilemap (map background)
+VRAM_TILEMAP1  = $02000 ; 128x128 tilemap (map foreground/GUI)
+VRAM_TILES0    = $0A000 ; 256 4bpp 16x16 tiles (may also be used as sprite frames)
+VRAM_TILES1    = $12000 ; 768 4bpp 8x8 tiles
+VRAM_SPRITES   = $18000 ; 243 4bpp 16x16 frames
 ; $1F9C0+ reserved
 
 

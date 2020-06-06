@@ -5,7 +5,7 @@ FILENAMES_INC = 1
 
 filenames:
 tilemap0_fn:   .asciiz "tilemap0.bin"
-tilemap1_fn:   .asciiz "tilemap0.bin"
+tilemap1_fn:   .asciiz "tilemap1.bin"
 loadmap_fn:    .asciiz "loadmap.bin"
 sprites_fn:    .asciiz "sprites.bin"
 tiles0_fn:     .asciiz "tiles0.bin"
