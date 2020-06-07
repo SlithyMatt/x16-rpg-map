@@ -15,12 +15,12 @@ void main(int argc, char **argv) {
       return;
    }
 
-   ifp = fopen(argv[1], "r");
+   ifp = fopen(argv[1], "rb");
    if (ifp == NULL) {
       printf("Error opening %s for reading\n", argv[1]);
       return;
    }
-   ofp = fopen(argv[2], "w");
+   ofp = fopen(argv[2], "wb");
    if (ofp == NULL) {
       printf("Error opening %s for writing\n", argv[2]);
       return;

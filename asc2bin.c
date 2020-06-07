@@ -34,7 +34,7 @@ void main(int argc, char **argv) {
       printf("Error opening %s for reading\n", argv[1]);
       return;
    }
-   ofp = fopen(argv[2], "w");
+   ofp = fopen(argv[2], "wb");
    if (ofp == NULL) {
       printf("Error opening %s for writing\n", argv[2]);
       return;
