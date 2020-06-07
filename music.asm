@@ -21,6 +21,18 @@ music_bank: .byte GAME_MUSIC_BANK
    lda MUSIC_PTR+1
    adc #0
    sta MUSIC_PTR+1
+   cmp #>(RAM_WIN+RAM_WIN_SIZE)
+   bne :++
+   lda #>RAM_WIN
+   sta MUSIC_PTR+1
+   lda music_bank
+   cmp #GAME_MUSIC_BANK
+   beq :+
+   lda #GAME_MUSIC_BANK
+   sta music_bank
+   bra :++
+:  inc music_bank
+:  nop
 .endmacro
 
 init_music:
@@ -29,6 +41,8 @@ init_music:
    sta MUSIC_PTR
    lda #>RAM_WIN
    sta MUSIC_PTR+1
+   lda #GAME_MUSIC_BANK
+   sta music_bank
    rts
 
 stop_music:
@@ -64,13 +78,12 @@ music_tick:
    jmp @return
 @check_delay:
    lda __music_delay
-   beq @load
+   beq @loop
    dec __music_delay
-   bra @return
-@load:
+   jmp @return
+@loop:
    lda music_bank
    sta RAM_BANK
-@loop:
    ldy #0
    lda (MUSIC_PTR),y
    iny
@@ -99,7 +112,7 @@ music_tick:
    lda (MUSIC_PTR),y
    sta YM_data
    INC_MUSIC_PTR
-   bra @loop
+   jmp @loop
 @return:
    rts
 

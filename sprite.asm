@@ -26,7 +26,7 @@ __sprattr:  ; A: sprite index
 
 sprite_frame:     ; A: frame
                   ; X: sprite index
-                  ; Y: flip (0: none, 1: H, 2: V, 3: H&V)
+                  ; Y: 7:4 - palette offset, 3:2 - spare, 1:0 - flip (0: none, 1: H, 2: V, 3: H&V)
    asl
    asl
    pha
@@ -44,9 +44,15 @@ sprite_frame:     ; A: frame
    lda VERA_data0
    lda VERA_data0
    tya
+   and #$03
    ora #$08
    sta VERA_data0
-   lda #$50
+   tya
+   lsr
+   lsr
+   lsr
+   lsr
+   ora #$50
    sta VERA_data0
    rts
 

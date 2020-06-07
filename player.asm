@@ -6,6 +6,7 @@ PLAYER_INC = 1
 .include "sprite.asm"
 
 PLAYER_SPRITE = 1
+PLAYER_PO     = 3
 
 PLAYER_X = 152
 PLAYER_Y = 112
@@ -30,9 +31,11 @@ __player_sprite_y:      .word PLAYER_Y
 
 init_player:
    SPRITE_SET_SCREEN_POS __player_sprite_idx, __player_sprite_x, __player_sprite_y
-   lda __player_down_frames
    ldx #PLAYER_SPRITE
-   ldy __player_ud_flips
+   lda __player_ud_flips
+   ora #(PLAYER_PO << 4)
+   tay
+   lda __player_down_frames
    jsr sprite_frame
    rts
 
@@ -180,6 +183,7 @@ player_tick:
    lda (ZP_PTR_1),y
    pha
    lda (ZP_PTR_2),y
+   ora #(PLAYER_PO << 4)
    tay
    pla
    ldx #PLAYER_SPRITE
