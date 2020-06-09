@@ -6,7 +6,7 @@ PLAYER_INC = 1
 .include "sprite.asm"
 
 PLAYER_SPRITE = 1
-PLAYER_PO     = 3
+PLAYER_PO     = 4
 
 PLAYER_X = 152
 PLAYER_Y = 112
