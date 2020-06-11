@@ -1,0 +1,65 @@
+{
+   "map": "layers.tmx",
+   "layers": [
+      {
+         "tiles": [
+            {
+               "set": "tiles16.tsx",
+               "start": 0
+            }
+         ],
+         "offsets": [
+            {
+               "offset": 1,
+               "start": 0
+            },
+            {
+               "offset": 2,
+               "start": 5
+            },
+            {
+               "offset": 3,
+               "start": 6
+            },
+            {
+               "offset": 2,
+               "start": 12
+            }
+         ]
+      },
+      {
+         "tiles": [
+            {
+               "set": "tiles8_0.tsx",
+               "start": 0
+            },
+            {
+               "set": "tiles8_128.tsx",
+               "start": 128
+            }
+         ],
+         "offsets": [
+            {
+               "offset": 0,
+               "start": 0
+            },
+            {
+               "offset": 3,
+               "start": 128
+            },
+            {
+               "offset": 2,
+               "start": 134
+            },
+            {
+               "offset": 1,
+               "start": 151
+            },
+            {
+               "offset": 2,
+               "start": 159
+            }
+         ]
+      }
+   ]
+}
