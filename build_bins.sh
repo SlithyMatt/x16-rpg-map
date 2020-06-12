@@ -9,4 +9,4 @@
 ./make4bitbin.exe TILES1.BIN gfx/tiles8_0_column.data gfx/tiles8_128.data
 #./asc2bin.exe palette.hex PAL.BIN FA00
 ./pal12bit.exe PAL.BIN gfx/tiles8_0.data.pal gfx/tiles8_128.data.pal
-./vgm2x16opm.exe SNW.vgm MUSIC.BIN A000
+./vgm2x16opm.exe /dev/null SNW.vgm MUSIC.BIN

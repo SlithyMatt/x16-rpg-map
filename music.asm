@@ -9,7 +9,9 @@ __music_delay: .byte 0
 
 __music_playing: .byte 1
 
-__music_looping: .byte 1
+__music_looping: .byte 0
+
+__music_loop_start: .word 0
 
 music_bank: .byte GAME_MUSIC_BANK
 
@@ -43,7 +45,21 @@ init_music:
    sta MUSIC_PTR+1
    lda #GAME_MUSIC_BANK
    sta music_bank
+   stz __music_looping
    rts
+
+loop_music:
+   stz __music_delay
+   lda __music_loop_start
+   sta MUSIC_PTR
+   lda __music_loop_start+1
+   sta MUSIC_PTR+1
+   lda #GAME_MUSIC_BANK
+   sta music_bank
+   lda #1
+   sta __music_looping
+   rts
+
 
 stop_music:
    stz __music_playing
@@ -55,16 +71,6 @@ stop_music:
    YM_SET_REG YM_KEY_ON, YM_CH_6
    YM_SET_REG YM_KEY_ON, YM_CH_7
    YM_SET_REG YM_KEY_ON, YM_CH_8
-   jsr init_music
-   rts
-
-stop_music_loop:
-   stz __music_looping
-   rts
-
-enable_music_loop:
-   lda #1
-   sta __music_looping
    rts
 
 start_music:
@@ -99,11 +105,16 @@ music_tick:
    bra @return
 @done:
    lda __music_looping
-   bne @reinit
+   bne @loop_again
    jsr stop_music
-   bra @return
-@reinit:
-   jsr init_music
+   INC_MUSIC_PTR
+   lda MUSIC_PTR
+   sta __music_loop_start
+   lda MUSIC_PTR+1
+   sta __music_loop_start+1
+   jsr start_music
+@loop_again:
+   jsr loop_music
    bra @return
 @write:
    bit YM_data

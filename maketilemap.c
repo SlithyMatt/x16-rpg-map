@@ -7,6 +7,14 @@
 
 #define MAX_JSON_SIZE 65536
 
+typedef struct {
+
+} tileset_t;
+
+typedef struct {
+
+} offset_t;
+
 void main(int argc, char **argv) {
    FILE *json_fp;
    FILE *ofp;
@@ -43,13 +51,18 @@ void main(int argc, char **argv) {
 	fclose(json_fp);
    parsed_json = json_tokener_parse(json_buffer);
 
-   json_object_object_get_ex(parsed_json,"map",&map);
-   printf("JSON map: %s\n", json_object_get_string(map));
-
    if (parsed_json == NULL) {
       printf("Failed to parse %s as JSON\n", argv[2]);
    }
 
+   json_object_object_get_ex(parsed_json,"map",&map);
+   if (strcmp(json_object_get_string(map), argv[1]) != 0) {
+      printf("JSON map value (%s) does not match XML filename (%s)\n",
+         json_object_get_string(map), argv[1]);
+      return;
+   }
+
+   printf("Parsing %s...\n", argv[1]);
 
    // start with layer 0
 
