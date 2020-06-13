@@ -35,7 +35,7 @@
             },
             {
                "set": "tiles8_128.tsx",
-               "start": 128
+               "start": 127
             }
          ],
          "offsets": [

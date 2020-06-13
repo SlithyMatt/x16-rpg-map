@@ -7,10 +7,19 @@
 
 #define MAX_JSON_SIZE 65536
 
+#define L0_ROWS 64
+#define L0_COLUMNS 64
+#define L1_ROWS 128
+#define L1_COLUMNS 128
+
+#define MAX_GID 0x3FFFFFFF
+
 typedef struct tileset_s {
    struct tileset_s *next;
    const char *set;
    int start;
+   int firstgid;
+   int lastgid;
 } tileset_t;
 
 typedef struct offset_s {
@@ -71,6 +80,7 @@ int parse_layer_json(struct json_object *layer, tileset_t **tile_list, offset_t 
    for (i = 0; i < json_object_array_length(offsets); i++) {
       if (i == 0) {
          offset = malloc(sizeof(offset_t));
+         *offset_list = offset;
       } else {
          offset->next = malloc(sizeof(offset_t));
          offset = offset->next;
@@ -86,6 +96,41 @@ int parse_layer_json(struct json_object *layer, tileset_t **tile_list, offset_t 
    return 0;
 }
 
+int gid2index(int gid, tileset_t *tiles) {
+   tileset_t *tileset = tiles;
+   int start = 0;
+   int firstgid = 1;
+
+   // zero means "empty" so assume tile index 0 will be completely transparent
+   if (gid == 0) {
+      return 0;
+   }
+
+   while (tiles != NULL) {
+      if ((gid >= tiles->firstgid) && (gid <= tiles->lastgid)) {
+         start = tiles->start;
+         firstgid = tiles->firstgid;
+      }
+      tiles = tiles->next;
+   }
+
+   return gid - firstgid + start;
+}
+
+int index2offset(int index, offset_t *offsets) {
+   offset_t *offset_ptr = offsets;
+   int offset = 0;
+
+   while (offset_ptr != NULL) {
+      if (index >= offset_ptr->start) {
+         offset = offset_ptr->offset;
+      }
+      offset_ptr = offset_ptr->next;
+   }
+
+   return offset;
+}
+
 void main(int argc, char **argv) {
    FILE *json_fp;
    FILE *ofp;
@@ -93,7 +138,7 @@ void main(int argc, char **argv) {
    int address;
    uint8_t odata[2];
    xmlDocPtr doc;
-   xmlNode *root_element = NULL;
+   xmlNodePtr xml_map_tree = NULL;
    char json_buffer[MAX_JSON_SIZE];
    struct json_object *parsed_json;
    struct json_object *map;
@@ -106,6 +151,16 @@ void main(int argc, char **argv) {
    tileset_t *l1_tiles = NULL;
    offset_t *l1_offsets = NULL;
 
+   tileset_t *tileset;
+   xmlNodePtr xml_node;
+   int firstgid;
+   xmlChar *csv;
+   int row;
+   int column;
+   unsigned int gid;
+   int index;
+   int offset;
+
    if (argc < 5) {
       printf("Usage: %s [tilemap XML input] [layer JSON input] [layer 0 binary output] [layer 1 binary output]\n", argv[0]);
       return;
@@ -116,8 +171,7 @@ void main(int argc, char **argv) {
       printf("Failed to parse %s as XML\n", argv[1]);
    }
 
-   root_element = xmlDocGetRootElement(doc);
-   printf("XML Root name: %s\n", root_element->name);
+   xml_map_tree = xmlDocGetRootElement(doc);
 
    json_fp = fopen(argv[2], "r");
    if (json_fp == NULL) {
@@ -141,9 +195,8 @@ void main(int argc, char **argv) {
    }
 
    if (strcmp(json_object_get_string(map), argv[1]) != 0) {
-      printf("JSON map value (%s) does not match XML filename (%s)\n",
+      printf("Warning: JSON map value (%s) does not match XML filename (%s)\n",
          json_object_get_string(map), argv[1]);
-      return;
    }
 
    json_object_object_get_ex(parsed_json,"layers",&layers);
@@ -173,7 +226,48 @@ void main(int argc, char **argv) {
 
    printf("Parsing %s...\n", argv[1]);
 
+   xml_node = xml_map_tree->children;
+
+   if (strcmp(xml_node->name,"text") == 0) {
+      xml_node = xml_node->next;
+   }
+
+   while ((xml_node != NULL) && (strcmp(xml_node->name,"tileset") == 0)) {
+      firstgid = atoi(xmlGetProp(xml_node,"firstgid"));
+      tileset = l0_tiles;
+      while ((tileset != NULL) && (strcmp(tileset->set, xmlGetProp(xml_node,"source")) != 0)) {
+         tileset = tileset->next;
+      }
+      if (tileset == NULL) {
+         tileset = l1_tiles;
+         while ((tileset != NULL) && (strcmp(tileset->set, xmlGetProp(xml_node,"source")) != 0)) {
+            tileset = tileset->next;
+         }
+      }
+      if (tileset == NULL) {
+         printf("XML tileset %s not found in JSON\n", xmlGetProp(xml_node,"source"));
+         return;
+      }
+      tileset->firstgid = firstgid;
+
+      xml_node = xml_node->next;
+      if (strcmp(xml_node->name,"text") == 0) {
+         xml_node = xml_node->next;
+      }
+
+      if (strcmp(xml_node->name,"tileset") == 0) {
+         tileset->lastgid = atoi(xmlGetProp(xml_node,"firstgid")) - 1;
+      } else {
+         tileset->lastgid = MAX_GID;
+      }
+   }
+
    // start with layer 0
+
+   if ((xml_node == NULL) || (strcmp(xml_node->name,"layer") != 0)) {
+      printf("Layer 0 not found in %s\n", argv[1]);
+      return;
+   }
 
    ofp = fopen(argv[3], "wb");
    if (ofp == NULL) {
@@ -188,11 +282,46 @@ void main(int argc, char **argv) {
    odata[1] = (uint8_t) ((address & 0xFF00) >> 8);
    fwrite(odata,1,2,ofp);
 
+   xml_node = xml_node->children;
+   if (strcmp(xml_node->name,"text") == 0) {
+      xml_node = xml_node->next;
+   }
+   xml_node = xml_node->children;
+   csv = strtok(xml_node->content," ,\r\n");
 
+   for (row = 0; row < L0_ROWS; row++) {
+      // skip dummy row created for alignment
+      for (column = 0; column < L0_COLUMNS*2-1; column++) {
+         strtok(NULL," ,\r\n");
+      }
+      for (column = 0; column < L0_COLUMNS; column++) {
+         csv = strtok(NULL," ,\r\n");
+         gid = atoi(csv);
+         index = gid2index(gid & 0x3FF,l0_tiles);
+         offset = index2offset(index,l0_offsets);
+         odata[0] = index & 0xFF;
+         odata[1] = (offset << 4) | ((gid & 0x80000000) >> 29) | ((gid & 0x40000000) >> 27) | ((index & 0x300) >> 8);
+         fwrite(odata,1,2,ofp);
+         // skip dummy column created for alignment
+         strtok(NULL," ,\r\n");
+      }
+      // get the first entry in the next dummy row
+      strtok(NULL," ,\r\n");
+   }
 
    fclose(ofp);
 
    // then layer 1
+
+   xml_node = xml_node->parent->parent->next;
+   if (strcmp(xml_node->name,"text") == 0) {
+      xml_node = xml_node->next;
+   }
+
+   if ((xml_node == NULL) || (strcmp(xml_node->name,"layer") != 0)) {
+      printf("Layer 1 not found in %s\n", argv[1]);
+      return;
+   }
 
    ofp = fopen(argv[4], "wb");
    if (ofp == NULL) {
@@ -207,6 +336,25 @@ void main(int argc, char **argv) {
    odata[1] = (uint8_t) ((address & 0xFF00) >> 8);
    fwrite(odata,1,2,ofp);
 
+   xml_node = xml_node->children;
+   if (strcmp(xml_node->name,"text") == 0) {
+      xml_node = xml_node->next;
+   }
+   xml_node = xml_node->children;
+   csv = strtok(xml_node->content, " ,\r\n");
+
+   for (row = 0; row < L1_ROWS; row++) {
+      for (column = 0; column < L1_COLUMNS; column++) {
+         gid = atoi(csv);
+         index = gid2index(gid & 0x3FF,l1_tiles);
+         offset = index2offset(index,l1_offsets);
+         odata[0] = index & 0xFF;
+         odata[1] = (offset << 4) | ((gid & 0x80000000) >> 29) | ((gid & 0x40000000) >> 27) | ((index & 0x300) >> 8);
+         fwrite(odata,1,2,ofp);
+         // get next token
+         csv = strtok(NULL," ,\r\n");
+      }
+   }
 
 
    fclose(ofp);
