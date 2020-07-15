@@ -1,0 +1,125 @@
+{
+   "map": "layers.tmx",
+   "layers": [
+      {
+         "tiles": [
+            {
+               "set": "cave2.tsx",
+               "start": 0
+            }
+         ],
+         "offsets": [
+            {
+               "offset": 3,
+               "start": 0
+            },
+            {
+               "offset": 2,
+               "start": 67
+            },
+            {
+               "offset": 3,
+               "start": 71
+            },
+            {
+               "offset": 2,
+               "start": 83
+            },
+            {
+               "offset": 3,
+               "start": 96
+            },
+            {
+               "offset": 2,
+               "start": 99
+            },
+            {
+               "offset": 3,
+               "start": 124
+            },
+            {
+               "offset": 1,
+               "start": 176
+            },
+            {
+               "offset": 3,
+               "start": 188
+            },
+            {
+               "offset": 1,
+               "start": 192
+            },
+            {
+               "offset": 3,
+               "start": 204
+            },
+            {
+               "offset": 1,
+               "start": 208
+            },
+            {
+               "offset": 3,
+               "start": 214
+            },
+            {
+               "offset": 1,
+               "start": 224
+            },
+            {
+               "offset": 3,
+               "start": 230
+            },
+            {
+               "offset": 1,
+               "start": 240
+            },
+            {
+               "offset": 3,
+               "start": 246
+            },
+            {
+               "offset": 1,
+               "start": 256
+            },
+            {
+               "offset": 3,
+               "start": 265
+            },
+            {
+               "offset": 1,
+               "start": 272
+            },
+            {
+               "offset": 3,
+               "start": 280
+            },
+            {
+               "offset": 1,
+               "start": 288
+            },
+            {
+               "offset": 3,
+               "start": 296
+            },
+            {
+               "offset": 1,
+               "start": 304
+            }
+         ]
+      },
+      {
+         "tiles": [
+            {
+               "set": "tiles8_0.tsx",
+               "start": 0
+            }
+         ],
+         "offsets": [
+            {
+               "offset": 0,
+               "start": 0
+            }
+         ]
+      }
+   ]
+}

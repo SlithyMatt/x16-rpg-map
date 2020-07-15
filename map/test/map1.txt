@@ -1,0 +1,10 @@
+m1_music.bin
+/dev/null
+m1_tilemap0.bin
+m1_tilemap1.bin
+m1_tiles0.bin
+m1_tiles1.bin
+m1_sprites.bin
+m1_cfg.bin
+m1_meta.bin
+/dev/null

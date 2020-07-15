@@ -1,0 +1,183 @@
+# Build Instructions
+
+How you build this game is different depending on what platform you are running.
+At this point, Windows is supported through Cygwin, and Linux is supported with
+special instructions here for Debian/Ubuntu distributions.
+
+# Building with Windows (Cygwin)
+
+The build toolchain for this project requires a GNU environment, which is
+natively available on most Linux and Unix (include Mac) platforms. For
+Windows, you will need a program called Cygwin that will provide a GNU
+userspace in Windows that will give you a Unix-like environment for development.
+
+## Installing and Configuring Cygwin
+
+First, you will need to download the Cygwin setup program from here:
+https://cygwin.com/setup-x86_64.exe
+
+When you run the program, it will ask you which packages you want to install.
+Make sure the following packages are selected:
+
+- git
+- gcc-core
+- make
+- libjson-c-devel
+- libxml2-devel
+
+Then, when Cygwin is installed, open the Cygwin Terminal program (you can
+specify to have a shortcut put on your desktop during the install) and cd
+to whatever directory you want to maintain your workspace. In Cygwin, the
+drive letters are also second-level directories, so your C drive is /cygdrive/c/
+and your D drive is /cygdrive/d/, etc. If my Windows username is Fred and
+I want to put a "workspace" directory in my profile alongside my "Documents"
+directory, I can do the following:
+
+```
+$ cd /cygdrive/c/Users/Fred
+$ mkdir workspace
+$ cd workspace
+```
+
+There, you can use git to clone this repository with the following command:
+
+```
+$ git clone https://github.com/SlithyMatt/x16-rpg-map.git
+```
+
+You will also need to clone the cc65 repo:
+
+```
+$ git clone https://github.com/cc65/cc65.git
+```
+
+Now, you can first test your new build environment by building cc65:
+
+```
+$ cd cc65
+$ make
+```
+
+This should create a "bin" subdirectory with all the cc65 tools you will need,
+like ca65.exe. You can either add this cc65/bin directory to your path, or add
+symbolic links within Cygwin in /usr/bin.
+
+## cc65 Option 1: Changing Path
+
+Open up your Environment Variables control panel in your settings (you can find it by searching for "env"). Select the "Path" variable and click the "Edit..." button.
+
+![Environment Variables control panel](env.png)
+
+Then, in the editor dialog that pops up, add a new entry for your cc65/bin directory.
+You can find it by clicking on the "Browse..." button.
+
+![Path Editor](path.png)
+
+Then click the "OK" button. You should be all set to run the cc65 tools from anywhere on Windows.
+If your Cygwin Terminal was left open during this change, you will need to close it
+and reopen it for the new environment to take effect.
+
+## cc65 Option 2: Adding Symbolic Links
+
+You can just add the cc65 tools that you need for the build as symbolic links to your Cygwin /usr/bin directory, which is already on the Cygwin bash path, but will not be on your general Windows
+path.
+
+Simply create the following links (you don't need to worry about superuser privileges in Cygwin):
+
+```
+$ cd /usr/bin
+$ ln -s /cygdrive/c/Users/Fred/workspace/cc65/bin/ca65.exe
+$ ln -s /cygdrive/c/Users/Fred/workspace/cc65/bin/cc65.exe
+$ ln -s /cygdrive/c/Users/Fred/workspace/cc65/bin/cl65.exe
+```
+
+Your environment should be all set now.
+
+## Building in Cygwin
+
+Now, just go back to the root directory of this project and run the make utility.
+
+```
+$ cd /cygdrive/c/Users/Fred/workspace/x16-rpg-map
+$ make
+```
+
+And that's it! All the game code, data, tools, and tests should be built.
+
+# Building with Debian/Ubuntu Linux
+
+Chances are, you have most of what you need already in Linux, but to be sure,
+you can install all of the required packages in one command:
+
+```
+$ sudo apt-get install git build-essential libjson-c-dev libxml2-dev
+```
+
+Then, you should create a workspace directory to hold all of your local repo
+clones, like ~/workspace.
+
+```
+$ cd
+$ mkdir workspace
+$ cd workspace
+```
+
+There, you can use git to clone this repository with the following command:
+
+```
+$ git clone https://github.com/SlithyMatt/x16-rpg-map
+```
+
+You will also need to clone the cc65 repo:
+
+```
+$ git clone https://github.com/cc65/cc65.git
+```
+
+Now, you can first test your new build environment by building cc65:
+
+```
+$ cd cc65
+$ make
+```
+
+This should create a "bin" subdirectory with all the cc65 tools you will need,
+like ca65.exe. You will need to add this directory to your PATH by adding the following
+line to ~/.bashrc:
+
+```
+export PATH=$PATH:$HOME/workspace/cc65/bin
+```
+
+To make this environment take hold, you will need to close and reopen your terminal.
+Then, you can go ahead and build this project using the make tool.
+
+```
+$ cd ~/workspace/x16-rpg-map
+$ make
+```
+
+And that's it! All the game code, data, tools, and tests should be built.
+
+## Troubleshooting
+
+If your build doesn't seem to work as intended, there is a "clean" make target
+at every level. You can always cd to the root of your project workspace and
+do this to make sure everything is built clean:
+
+```
+make clean
+make
+```
+
+If things are still off, try merging the latest master branch into your working branch.
+After doing any merge, it is *highly* recommended to do a clean build afterward.
+
+```
+git checkout master
+git pull
+git checkout my-branch
+git merge master
+```
+
+[Go back to README](../README.md)
